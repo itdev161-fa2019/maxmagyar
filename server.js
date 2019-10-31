@@ -23,9 +23,9 @@ res.send('http get request sent to root api endpoint')
  * @route POST api/users
  * @desc Register User
  */
-app.post('api/users', (req, res) => {
-    console.log(req,body);
-    res.send(req, body);
+app.post('/api/users', (req, res) => {
+    console.log(req.body);
+    res.send(req.body);
 });
 
 //Connection Listener
