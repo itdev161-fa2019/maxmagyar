@@ -3,6 +3,8 @@ import connectDatabase from './config/db';
 import { check, validationResult } from 'express-validator';
 import cors from 'cors';
 import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+import config from 'config';
 import User from './models/User';
 
 // Initialize express application
@@ -11,14 +13,13 @@ const app = express();
 // Connect database
 connectDatabase();
 
-// Middleware
+// Configure Middleware
 app.use(express.json({ extended: false }));
 app.use(
   cors({
     origin: 'http://localhost:3000'
   })
 );
-
 
 // API endpoints
 /**
@@ -28,6 +29,8 @@ app.use(
 app.get('/', (req, res) =>
   res.send('http get request sent to root api endpoint')
 );
+
+app.get('/api/', (req, res) => res.send('http get request sent to api'));
 
 /**
  * @route POST api/users
@@ -52,32 +55,47 @@ app.post(
     } else {
       const { name, email, password } = req.body;
       try {
-        //Check if user exists
+        // Check if user exists
         let user = await User.findOne({ email: email });
         if (user) {
-          return res 
-          .status(400)
-          .json({ errors: [{ msg: 'User already exists'}] });
+          return res
+            .status(400)
+            .json({ errors: [{ msg: 'User already exists' }] });
         }
 
-        //Create a new user
-        user = new User ({ 
+        // Create a new user
+        user = new User({
           name: name,
           email: email,
-          password : password
+          password: password
         });
 
-        //Encrypt the password
+        // Encrypt the password
         const salt = await bcrypt.genSalt(10);
         user.password = await bcrypt.hash(password, salt);
 
-        //Save the db and return
+        // Save to the db and return
         await user.save();
-        res.send('User successfully registered');
+
+        // Generate and return a JWT token
+        const payload = {
+          user: {
+            id: user.id
+          }
+        };
+
+        jwt.sign(
+          payload,
+          config.get('jwtSecret'),
+          { expiresIn: '10hr' },
+          (err, token) => {
+            if (err) throw err;
+            res.json({ token: token });
+          }
+        );
       } catch (error) {
         res.status(500).send('Server error');
       }
-      return res.send(req.body);
     }
   }
 );
