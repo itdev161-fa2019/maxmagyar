@@ -1,0 +1,3 @@
+{
+    "mongoURI": "mongodb+srv://maxmagyar:maxmagyar@cluster0-cl34z.mongodb.net/test?retryWrites=true&w=majority"
+}
