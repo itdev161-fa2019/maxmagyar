@@ -24,10 +24,18 @@ res.send('http get request sent to root api endpoint')
  * @route POST api/users
  * @desc Register User
  */
-app.post('/api/users', (req, res) => {
+app.post(
+    '/api/users',
+    [
+        check('name', 'Please enter your name').not().isEmpty(),
+        check('email', 'Please enter a valid email').isEmail(),
+        check('password','Please enter a password with 6 or more characters').isLength({ min: 6 })
+    ],
+    (req, res) => {
     console.log(req.body);
     res.send(req.body);
-});
+   }
+);
 
 //Connection Listener
 app.listen(5000, () => console.log('Express server running on port 5000'));
