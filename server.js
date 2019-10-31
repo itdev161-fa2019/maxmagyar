@@ -8,34 +8,43 @@ const app = express();
 // Connect database
 connectDatabase();
 
-//Configure Middleware
-app.use(express.json({ extended: false}));
+// Middleware
+app.use(express.json({ extended: false }));
 
-//API Endpoints
+// API endpoints
 /**
  * @route GET /
- * @desc Test Endpoint
+ * @desc Test endpoint
  */
 app.get('/', (req, res) =>
-res.send('http get request sent to root api endpoint')
+  res.send('http get request sent to root api endpoint')
 );
 
 /**
  * @route POST api/users
- * @desc Register User
+ * @desc Register user
  */
 app.post(
-    '/api/users',
-    [
-        check('name', 'Please enter your name').not().isEmpty(),
-        check('email', 'Please enter a valid email').isEmail(),
-        check('password','Please enter a password with 6 or more characters').isLength({ min: 6 })
-    ],
-    (req, res) => {
-    console.log(req.body);
-    res.send(req.body);
-   }
+  '/api/users',
+  [
+    check('name', 'Please enter your name')
+      .not()
+      .isEmpty(),
+    check('email', 'Please enter a valid email').isEmail(),
+    check(
+      'password',
+      'Please enter a password with 6 or more characters'
+    ).isLength({ min: 6 })
+  ],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(422).json({ errors: errors.array() });
+    } else {
+      return res.send(req.body);
+    }
+  }
 );
 
-//Connection Listener
+// Connection listener
 app.listen(5000, () => console.log('Express server running on port 5000'));
