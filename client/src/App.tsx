@@ -7,7 +7,9 @@ import Login from './components/Login/Login';
 
 class App extends React.Component {
   state = {
-    data: null
+    data: null,
+    token: null,
+    user: null
   }
 
   componentDidMount() {
